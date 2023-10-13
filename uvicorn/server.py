@@ -262,7 +262,8 @@ class Server:
             return True
         if self.config.limit_max_requests is not None:
             too_much_requests = self.server_state.total_requests >= self.config.limit_max_requests
-            logger.info(f"server.py: should_exit: True | Stopping on_tick because too much request ({self.server_state.total_requests} >= {self.config.limit_max_requests})")
+            if too_much_requests:
+                logger.info(f"server.py: should_exit: True | Stopping on_tick because too much request ({self.server_state.total_requests} >= {self.config.limit_max_requests})")
             return too_much_requests
         return False
 
