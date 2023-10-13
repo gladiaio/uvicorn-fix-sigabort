@@ -252,6 +252,8 @@ class Server:
             if counter % 50 == 0:
                 logger.info(f"uvi: check every 5s if notify loop is running: callback_notify is None: {self.config.callback_notify is None}, last_update was: {current_time - self.last_notified}s ago, timeout_notify: {self.config.timeout_notify}s")
 
+            if self.config.callback_notify is None:
+                logger.error(f"uvi:  callback_notify suddenly disappeared.")
             # Callback to `callback_notify` once every `timeout_notify` seconds.
             if self.config.callback_notify is not None:
                 if current_time - self.last_notified > self.config.timeout_notify:
