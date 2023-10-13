@@ -88,7 +88,7 @@ class Server:
     async def startup(self, sockets: Optional[List[socket.socket]] = None) -> None:
         await self.lifespan.startup()
         if self.lifespan.should_exit:
-            logger.info(f"server.py: should_exit: True because of lifespan")
+            logger.error(f"uvi: should_exit: True because of lifespan")
             self.should_exit = True
             return
 
@@ -227,7 +227,7 @@ class Server:
     async def main_loop(self) -> None:
         counter = 0
         should_exit = await self.on_tick(counter)
-        logger.info(f"Init 'should_exit': {should_exit}")
+        logger.info(f"uvi: Init 'should_exit': {should_exit}")
         while not should_exit:
             counter += 1
             counter = counter % 864000
@@ -250,23 +250,23 @@ class Server:
             )
 
             if counter % 50 == 0:
-                logger.info(f"server.py check every 5s if notify loop is running: callback_notify is None: {self.config.callback_notify is None}, last_update was: {current_time - self.last_notified}s ago, timeout_notify: {self.config.timeout_notify}s")
+                logger.info(f"uvi: check every 5s if notify loop is running: callback_notify is None: {self.config.callback_notify is None}, last_update was: {current_time - self.last_notified}s ago, timeout_notify: {self.config.timeout_notify}s")
 
             # Callback to `callback_notify` once every `timeout_notify` seconds.
             if self.config.callback_notify is not None:
                 if current_time - self.last_notified > self.config.timeout_notify:
                     self.last_notified = current_time
-                    logger.info("server.py: Calling callback_notify - update worker")
+                    logger.info("uvi:  Calling callback_notify - update worker")
                     await self.config.callback_notify()
 
         # Determine if we should exit.
         if self.should_exit:
-            logger.info(f"server.py: should_exit: True | Stopping on_tick.")
+            logger.error(f"uvi:  should_exit: True | Stopping on_tick.")
             return True
         if self.config.limit_max_requests is not None:
             too_much_requests = self.server_state.total_requests >= self.config.limit_max_requests
             if too_much_requests:
-                logger.info(f"server.py: should_exit: True | Stopping on_tick because too much request ({self.server_state.total_requests} >= {self.config.limit_max_requests})")
+                logger.error(f"uvi:  should_exit: True | Stopping on_tick because too much request ({self.server_state.total_requests} >= {self.config.limit_max_requests})")
             return too_much_requests
         return False
 
