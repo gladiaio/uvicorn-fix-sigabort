@@ -227,7 +227,7 @@ class Server:
     async def main_loop(self) -> None:
         counter = 0
         should_exit = await self.on_tick(counter)
-        logger.log(f"Init 'should_exit': {should_exit}")
+        logger.info(f"Init 'should_exit': {should_exit}")
         while not should_exit:
             counter += 1
             counter = counter % 864000
