@@ -250,7 +250,7 @@ class Server:
             )
 
             if counter % 50 == 0:
-                logger.info(f"server.py check every 5s if notify loop is running: callback_notify is None: {self.config.callback_notify is None}, current_time: {current_time}, last_notified: {self.last_notified}, timeout_notify: {self.config.timeout_notify}")
+                logger.info(f"server.py check every 5s if notify loop is running: callback_notify is None: {self.config.callback_notify is None}, last_update was: {current_time - self.last_notified}s ago, timeout_notify: {self.config.timeout_notify}s")
 
             # Callback to `callback_notify` once every `timeout_notify` seconds.
             if self.config.callback_notify is not None:
