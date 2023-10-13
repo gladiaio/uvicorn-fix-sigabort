@@ -249,6 +249,9 @@ class Server:
                 date_header + self.config.encoded_headers
             )
 
+            if counter % 50 == 0:
+                logger.info(f"server.py check every 5s if notify loop is running: callback_notify: {self.config.callback_notify}, last_notified: {self.last_notified}, timeout_notify: {self.config.timeout_notify}")
+
             # Callback to `callback_notify` once every `timeout_notify` seconds.
             if self.config.callback_notify is not None:
                 if current_time - self.last_notified > self.config.timeout_notify:
