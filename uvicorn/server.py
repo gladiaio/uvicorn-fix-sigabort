@@ -88,6 +88,7 @@ class Server:
     async def startup(self, sockets: Optional[List[socket.socket]] = None) -> None:
         await self.lifespan.startup()
         if self.lifespan.should_exit:
+            logger.info(f"server.py: should_exit: True because of lifespan")
             self.should_exit = True
             return
 
@@ -226,6 +227,7 @@ class Server:
     async def main_loop(self) -> None:
         counter = 0
         should_exit = await self.on_tick(counter)
+        logger.log(f"Init 'should_exit': {should_exit}")
         while not should_exit:
             counter += 1
             counter = counter % 864000
@@ -251,13 +253,17 @@ class Server:
             if self.config.callback_notify is not None:
                 if current_time - self.last_notified > self.config.timeout_notify:
                     self.last_notified = current_time
+                    logger.info("server.py: Calling callback_notify - update worker")
                     await self.config.callback_notify()
 
         # Determine if we should exit.
         if self.should_exit:
+            logger.info(f"server.py: should_exit: True | Stopping on_tick.")
             return True
         if self.config.limit_max_requests is not None:
-            return self.server_state.total_requests >= self.config.limit_max_requests
+            too_much_requests = self.server_state.total_requests >= self.config.limit_max_requests
+            logger.info(f"server.py: should_exit: True | Stopping on_tick because too much request ({self.server_state.total_requests} >= {self.config.limit_max_requests})")
+            return too_much_requests
         return False
 
     async def shutdown(self, sockets: Optional[List[socket.socket]] = None) -> None:
