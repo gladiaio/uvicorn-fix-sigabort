@@ -21,7 +21,8 @@ if TYPE_CHECKING:
     from uvicorn.protocols.websockets.websockets_impl import WebSocketProtocol
     from uvicorn.protocols.websockets.wsproto_impl import WSProtocol
 
-    Protocols = Union[H11Protocol, HttpToolsProtocol, WSProtocol, WebSocketProtocol]
+    Protocols = Union[H11Protocol, HttpToolsProtocol,
+                      WSProtocol, WebSocketProtocol]
 
 
 HANDLED_SIGNALS = (
@@ -29,7 +30,8 @@ HANDLED_SIGNALS = (
     signal.SIGTERM,  # Unix signal 15. Sent by `kill <pid>`.
 )
 if sys.platform == "win32":  # pragma: py-not-win32
-    HANDLED_SIGNALS += (signal.SIGBREAK,)  # Windows signal 21. Sent by Ctrl+Break.
+    # Windows signal 21. Sent by Ctrl+Break.
+    HANDLED_SIGNALS += (signal.SIGBREAK,)
 
 logger = logging.getLogger("uvicorn.error")
 
@@ -72,8 +74,10 @@ class Server:
         self.install_signal_handlers()
 
         message = "Started server process [%d]"
-        color_message = "Started server process [" + click.style("%d", fg="cyan") + "]"
-        logger.info(message, process_id, extra={"color_message": color_message})
+        color_message = "Started server process [" + \
+            click.style("%d", fg="cyan") + "]"
+        logger.info(message, process_id, extra={
+                    "color_message": color_message})
 
         await self.startup(sockets=sockets)
         if self.should_exit:
@@ -82,8 +86,10 @@ class Server:
         await self.shutdown(sockets=sockets)
 
         message = "Finished server process [%d]"
-        color_message = "Finished server process [" + click.style("%d", fg="cyan") + "]"
-        logger.info(message, process_id, extra={"color_message": color_message})
+        color_message = "Finished server process [" + \
+            click.style("%d", fg="cyan") + "]"
+        logger.info(message, process_id, extra={
+                    "color_message": color_message})
 
     async def startup(self, sockets: Optional[List[socket.socket]] = None) -> None:
         await self.lifespan.startup()
@@ -118,7 +124,8 @@ class Server:
                 # multiple workers (processes).
                 from socket import fromshare  # type: ignore[attr-defined]
 
-                sock_data = sock.share(os.getpid())  # type: ignore[attr-defined]
+                # type: ignore[attr-defined]
+                sock_data = sock.share(os.getpid())
                 return fromshare(sock_data)
 
             self.servers: List[asyncio.base_events.Server] = []
@@ -250,15 +257,15 @@ class Server:
             )
 
             if counter % 50 == 0:
-                logger.info(f"uvi: check every 5s if notify loop is running: callback_notify is None: {self.config.callback_notify is None}, last_update was: {current_time - self.last_notified}s ago, timeout_notify: {self.config.timeout_notify}s")
+                logger.info(
+                    f"uvi: check every 5s if notify loop is running: callback_notify is None: {self.config.callback_notify is None}, last_update was: {current_time - self.last_notified}s ago, timeout_notify: {self.config.timeout_notify}s")
 
-            if self.config.callback_notify is None:
-                logger.error(f"uvi:  callback_notify suddenly disappeared.")
             # Callback to `callback_notify` once every `timeout_notify` seconds.
             if self.config.callback_notify is not None:
                 if current_time - self.last_notified > self.config.timeout_notify:
                     self.last_notified = current_time
-                    logger.info("uvi:  Calling callback_notify - update worker")
+                    logger.info(
+                        "uvi:  Calling callback_notify - update worker")
                     await self.config.callback_notify()
 
         # Determine if we should exit.
@@ -268,7 +275,8 @@ class Server:
         if self.config.limit_max_requests is not None:
             too_much_requests = self.server_state.total_requests >= self.config.limit_max_requests
             if too_much_requests:
-                logger.error(f"uvi:  should_exit: True | Stopping on_tick because too much request ({self.server_state.total_requests} >= {self.config.limit_max_requests})")
+                logger.error(
+                    f"uvi:  should_exit: True | Stopping on_tick because too much request ({self.server_state.total_requests} >= {self.config.limit_max_requests})")
             return too_much_requests
         return False
 
@@ -303,7 +311,8 @@ class Server:
                 if sys.version_info < (3, 9):  # pragma: py-gte-39
                     t.cancel()
                 else:  # pragma: py-lt-39
-                    t.cancel(msg="Task cancelled, timeout graceful shutdown exceeded")
+                    t.cancel(
+                        msg="Task cancelled, timeout graceful shutdown exceeded")
 
         # Send the lifespan shutdown event, and wait for application shutdown.
         if not self.force_exit:
