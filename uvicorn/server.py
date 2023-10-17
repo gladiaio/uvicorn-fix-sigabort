@@ -260,7 +260,6 @@ class Server:
                 updated_since = "{:.2f}".format(
                     current_time - self.last_notified)
                 updated_info = f'last_update was: {updated_since}s ago' if self.last_notified > 0 else f'has never been updated since creation'
-                logger.info(self.last_notified)
                 logger.info(
                     f"uvi: check every 5s if notify loop is running: callback_notify is None: {self.config.callback_notify is None}, {updated_info}, timeout_notify: {self.config.timeout_notify}s")
 
